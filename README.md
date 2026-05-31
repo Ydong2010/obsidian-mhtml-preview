@@ -12,27 +12,25 @@ Preview `.mhtml` (MIME HTML) files directly in Obsidian with full fidelity — i
 
 ## Installation
 
-### From GitHub Release (recommended)
+### Quick Install (download & copy)
 
-1. Go to the [Releases page](https://github.com/Ydong2010/obsidian-mhtml-preview/releases)
-2. Download the latest `main.js`, `manifest.json`, and `styles.css`
-3. Open your Obsidian vault folder in File Explorer
-4. Navigate into `.obsidian\plugins\` (create the `plugins` folder if it doesn't exist)
-5. Create a new folder named `mhtml-preview`
-6. Copy the three files into that folder:
+Copy three files into your vault's plugin folder:
 
-   ```
-   {your-vault}\.obsidian\plugins\mhtml-preview\
-   ├── main.js
-   ├── manifest.json
-   └── styles.css
-   ```
+```
+{your-vault}\.obsidian\plugins\mhtml-preview\
+├── main.js
+├── manifest.json
+└── styles.css
+```
 
-7. Open Obsidian → Settings → Community Plugins
-8. If "Safe mode" is on, turn it off
-9. Find "MHTML Preview" in the list and toggle it **On**
+You can get the files from the [Releases page](https://github.com/Ydong2010/obsidian-mhtml-preview/releases), or directly from this repository.
 
-### Build from Source
+Then:
+1. Open Obsidian → Settings → Community Plugins
+2. If "Safe mode" is on, turn it off
+3. Find "MHTML Preview" in the list and toggle it **On**
+
+### Build from Source (for developers)
 
 ```bash
 git clone https://github.com/Ydong2010/obsidian-mhtml-preview.git
@@ -41,7 +39,7 @@ npm install
 npm run build
 ```
 
-Then copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder as described above.
+Then copy the three files as described above.
 
 ## How to Use
 
