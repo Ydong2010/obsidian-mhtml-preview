@@ -1,5 +1,2 @@
 node_modules/
-main.js
 main.js.map
-*.js
-!esbuild.config.mjs
