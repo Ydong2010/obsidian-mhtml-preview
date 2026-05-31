@@ -12,47 +12,76 @@ Preview `.mhtml` (MIME HTML) files directly in Obsidian with full fidelity — i
 
 ## Installation
 
-### Manual Installation
+### From GitHub Release (recommended)
 
-1. Download the latest release or build from source
-2. Copy `main.js`, `manifest.json`, and `styles.css` into your vault's plugin folder:
+1. Go to the [Releases page](https://github.com/Ydong2010/obsidian-mhtml-preview/releases)
+2. Download the latest `main.js`, `manifest.json`, and `styles.css`
+3. Open your Obsidian vault folder in File Explorer
+4. Navigate into `.obsidian\plugins\` (create the `plugins` folder if it doesn't exist)
+5. Create a new folder named `mhtml-preview`
+6. Copy the three files into that folder:
+
    ```
-   {vault}/.obsidian/plugins/mhtml-preview/
+   {your-vault}\.obsidian\plugins\mhtml-preview\
+   ├── main.js
+   ├── manifest.json
+   └── styles.css
    ```
-3. Restart Obsidian or reload plugins
-4. Enable "MHTML Preview" in Settings → Community Plugins
+
+7. Open Obsidian → Settings → Community Plugins
+8. If "Safe mode" is on, turn it off
+9. Find "MHTML Preview" in the list and toggle it **On**
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/your-username/obsidian-mhtml-preview.git
+git clone https://github.com/Ydong2010/obsidian-mhtml-preview.git
 cd obsidian-mhtml-preview
 npm install
 npm run build
 ```
 
-Then copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder.
+Then copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder as described above.
 
-## Usage
+## How to Use
 
-### Opening MHTML Files
+This plugin lets you preview web pages that you've saved as MHTML files. Here's how, step by step:
 
-1. Save a web page as MHTML in Chrome/Edge: **Ctrl+S → "Webpage, Single File"**
-2. Place the `.mhtml` file in your Obsidian vault
-3. Click the file in Obsidian's file explorer — it opens in the preview view
+### Step 1: Save a web page as MHTML
 
-### Supported Formats
+Open the page you want to save in **Chrome** or **Edge**, then:
 
-| Extension | Description |
+- Press **Ctrl + S** (or right-click → "Save as")
+- In the "Save as type" dropdown, choose **"Webpage, Single File"** (not "Webpage, Complete" — that creates a folder)
+- Choose a location and click Save
+
+！[Save as MHTML screenshot](screenshot-save.png)
+
+> **Note**: If you're using another browser (Firefox, Safari, etc.), this format may not be available. Chrome and Edge work best.
+
+### Step 2: Put the file in your vault
+
+Move or copy the saved `.mhtml` file into any folder inside your Obsidian vault. You can put it in the root folder or any subfolder — it's up to you.
+
+### Step 3: Open it in Obsidian
+
+In Obsidian's left sidebar, you'll see the file explorer. Simply **click the `.mhtml` file** — it will open in a preview view showing the webpage as it originally looked, including all images, styling, and layout.
+
+！[Preview screenshot](screenshot-preview.png)
+
+### Context menu options
+
+Click the **"…"** (More options) button in the top-right corner of the preview tab to access:
+
+- **Refresh preview** — reload the MHTML file (useful if you've updated it externally)
+- **Copy file path** — copy the file's location within your vault
+
+### Supported file types
+
+| Extension | Source |
 |---|---|
-| `.mhtml` | MIME HTML archive (Chrome/Edge default) |
-| `.mht` | Alternate MHTML extension |
-
-### Context Menu
-
-Right-click the preview (or use the "More options" menu) to:
-- **Refresh preview** — re-parse and re-render the current file
-- **Copy file path** — copy the vault path to clipboard
+| `.mhtml` | Chrome / Edge default save format |
+| `.mht` | Alternate extension (same format) |
 
 ## How It Works
 
