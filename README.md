@@ -53,7 +53,7 @@ Open the page you want to save in **Chrome** or **Edge**, then:
 - In the "Save as type" dropdown, choose **"Webpage, Single File"** (not "Webpage, Complete" — that creates a folder)
 - Choose a location and click Save
 
-！[Save as MHTML screenshot](screenshot-save.png)
+![Save as MHTML screenshot](screenshot-save.png)
 
 > **Note**: If you're using another browser (Firefox, Safari, etc.), this format may not be available. Chrome and Edge work best.
 
@@ -69,7 +69,7 @@ You have two ways to open an MHTML file:
 
 **Method 2** — **Drag the `.mhtml` file into a note** to create a link, then click that link to open the preview. This is useful when you want to reference a saved webpage inside your writing.
 
-！[Preview screenshot](screenshot-preview.png)
+![Preview screenshot](screenshot-preview.png)
 
 ### Context menu options
 
