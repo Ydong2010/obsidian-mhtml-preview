@@ -1,32 +1,21 @@
 import { Plugin, PluginSettingTab, Setting, App, TFile } from "obsidian";
 import { MhtmlFileView, MHTML_VIEW_TYPE } from "./view";
 import { MhtmlEmbedRenderer } from "./embed-renderer";
+import { startEmbedObserver } from "./live-preview";
 import type { MhtmlPreviewSettings } from "./mhtml-parser";
 import { DEFAULT_SETTINGS } from "./mhtml-parser";
 
-/**
- * Obsidian plugin for previewing .mhtml (MIME HTML) files.
- *
- * This plugin:
- * - Registers a custom FileView for .mhtml/.mht files
- * - Parses MHTML documents client-side
- * - Inlines all resources (images, CSS, fonts) as data URIs
- * - Renders the self-contained result in a sandboxed iframe
- * - Renders inline embeds (![[file.mhtml]]) in reading view
- */
 export default class MhtmlPreviewPlugin extends Plugin {
 	settings!: MhtmlPreviewSettings;
+	private embedObserver: MutationObserver | null = null;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// Register the custom view type for full-tab viewing
 		this.registerView(MHTML_VIEW_TYPE, (leaf) => new MhtmlFileView(leaf));
-
-		// Register file extensions — clicking .mhtml/.mht files opens our view
 		this.registerExtensions(["mhtml", "mht"], MHTML_VIEW_TYPE);
 
-		// Register markdown post processor for inline embeds (![[file.mhtml]])
+		// Reading view inline embed (registerMarkdownPostProcessor)
 		this.registerMarkdownPostProcessor((el, ctx) => {
 			const embeds = el.querySelectorAll(".internal-embed");
 			for (let i = 0; i < embeds.length; i++) {
@@ -36,47 +25,46 @@ export default class MhtmlPreviewPlugin extends Plugin {
 				if (!src.endsWith(".mhtml") && !src.endsWith(".mht")) continue;
 
 				const file = this.app.metadataCache.getFirstLinkpathDest(
-					src,
-					ctx.sourcePath
+					src, ctx.sourcePath
 				);
 				if (!file || !(file instanceof TFile)) continue;
 
 				ctx.addChild(
 					new MhtmlEmbedRenderer(
-						embed as HTMLElement,
-						file,
-						this.app,
+						embed as HTMLElement, file, this.app,
 						this.settings.iframeSandbox
 					)
 				);
 			}
 		});
 
-		// Register settings tab
+		// DOM-level embed observer (catches Live Preview and any other contexts)
+		this.embedObserver = startEmbedObserver(
+			this.app,
+			this.settings.iframeSandbox
+		);
+
 		this.addSettingTab(new MhtmlPreviewSettingTab(this.app, this));
 
-		// Command: open the MHTML preview view (creates or reveals the view)
 		this.addCommand({
 			id: "open-mhtml-preview",
 			name: "Open MHTML preview",
-			callback: () => {
-				this.activateView();
-			},
+			callback: () => this.activateView(),
 		});
 
 		console.log("MHTML Preview plugin v1.0.0 loaded");
 	}
 
 	onunload(): void {
+		if (this.embedObserver) {
+			this.embedObserver.disconnect();
+			this.embedObserver = null;
+		}
 		console.log("MHTML Preview plugin unloaded");
 	}
 
-	/**
-	 * Activate the MHTML preview view — reveals existing view or creates a new one.
-	 */
 	async activateView(): Promise<void> {
 		const leaves = this.app.workspace.getLeavesOfType(MHTML_VIEW_TYPE);
-
 		if (leaves.length > 0) {
 			this.app.workspace.revealLeaf(leaves[0]);
 		} else {
@@ -95,9 +83,6 @@ export default class MhtmlPreviewPlugin extends Plugin {
 	}
 }
 
-/**
- * Settings tab for the MHTML Preview plugin.
- */
 class MhtmlPreviewSettingTab extends PluginSettingTab {
 	plugin: MhtmlPreviewPlugin;
 
@@ -114,27 +99,21 @@ class MhtmlPreviewSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Iframe sandbox")
-			.setDesc(
-				"Controls iframe security restrictions. " +
-				'Default: "allow-scripts allow-same-origin". ' +
-				"See MDN iframe sandbox documentation for available flags."
-			)
+			.setDesc("Controls iframe security. Default: allow-scripts allow-same-origin.")
 			.addText((text) =>
 				text
 					.setPlaceholder("allow-scripts allow-same-origin")
 					.setValue(this.plugin.settings.iframeSandbox)
 					.onChange(async (value) => {
-						this.plugin.settings.iframeSandbox = value || DEFAULT_SETTINGS.iframeSandbox;
+						this.plugin.settings.iframeSandbox =
+							value || DEFAULT_SETTINGS.iframeSandbox;
 						await this.plugin.saveSettings();
 					})
 			);
 
 		new Setting(containerEl)
 			.setName("Dark mode filter")
-			.setDesc(
-				"Apply a CSS filter to the preview when Obsidian is in dark mode. " +
-				"This inverts colors in the preview content."
-			)
+			.setDesc("Apply a CSS filter to the preview in dark mode.")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.darkModeFilter)
@@ -145,14 +124,9 @@ class MhtmlPreviewSettingTab extends PluginSettingTab {
 			);
 
 		containerEl.createEl("h3", { text: "Supported Formats" });
-		const infoDiv = containerEl.createDiv({ cls: "setting-item-description" });
-		infoDiv.innerHTML =
-			"<p>This plugin supports MHTML files saved by:</p>" +
-			"<ul>" +
-			"<li>Google Chrome / Microsoft Edge (Save as → Webpage, Single File)</li>" +
-			"<li>Other Chromium-based browsers</li>" +
-			"<li>Tools that produce RFC 2557 compliant MHTML</li>" +
-			"</ul>" +
-			"<p>File extensions: <code>.mhtml</code>, <code>.mht</code></p>";
+		const info = containerEl.createDiv({ cls: "setting-item-description" });
+		info.innerHTML =
+			"<p>MHTML files from Chrome/Edge (Save → Webpage, Single File).<br>" +
+			"Extensions: <code>.mhtml</code>, <code>.mht</code></p>";
 	}
 }
