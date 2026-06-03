@@ -63,11 +63,13 @@ Move or copy the saved `.mhtml` file into any folder inside your Obsidian vault.
 
 ### Step 3: Open it in Obsidian
 
-You have two ways to open an MHTML file:
+You have three ways to preview an MHTML file:
 
-**Method 1** — In Obsidian's left sidebar, simply **click the `.mhtml` file** in the file explorer. It will open in a preview view showing the webpage in full fidelity.
+**Method 1** — In Obsidian's left sidebar, simply **click the `.mhtml` file** in the file explorer. It will open in a full tab.
 
-**Method 2** — **Drag the `.mhtml` file into a note** to create a link, then click that link to open the preview. This is useful when you want to reference a saved webpage inside your writing.
+**Method 2** — **Drag the `.mhtml` file into a note** to create a link, then click that link to open it in a full tab.
+
+**Method 3** — Use the embed syntax `![[file.mhtml]]` in a note. This shows an **inline preview** directly inside the note — works in both **Reading view** and **Live Preview** (editing mode).
 
 ![Preview screenshot](screenshot-preview.png)
 
