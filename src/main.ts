@@ -1,5 +1,6 @@
-import { Plugin, PluginSettingTab, Setting, App } from "obsidian";
+import { Plugin, PluginSettingTab, Setting, App, TFile } from "obsidian";
 import { MhtmlFileView, MHTML_VIEW_TYPE } from "./view";
+import { MhtmlEmbedRenderer } from "./embed-renderer";
 import type { MhtmlPreviewSettings } from "./mhtml-parser";
 import { DEFAULT_SETTINGS } from "./mhtml-parser";
 
@@ -11,6 +12,7 @@ import { DEFAULT_SETTINGS } from "./mhtml-parser";
  * - Parses MHTML documents client-side
  * - Inlines all resources (images, CSS, fonts) as data URIs
  * - Renders the self-contained result in a sandboxed iframe
+ * - Renders inline embeds (![[file.mhtml]]) in reading view
  */
 export default class MhtmlPreviewPlugin extends Plugin {
 	settings!: MhtmlPreviewSettings;
@@ -18,12 +20,37 @@ export default class MhtmlPreviewPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// Register the custom view type
-		// The factory is called for each leaf that needs this view
+		// Register the custom view type for full-tab viewing
 		this.registerView(MHTML_VIEW_TYPE, (leaf) => new MhtmlFileView(leaf));
 
 		// Register file extensions — clicking .mhtml/.mht files opens our view
 		this.registerExtensions(["mhtml", "mht"], MHTML_VIEW_TYPE);
+
+		// Register markdown post processor for inline embeds (![[file.mhtml]])
+		this.registerMarkdownPostProcessor((el, ctx) => {
+			const embeds = el.querySelectorAll(".internal-embed");
+			for (let i = 0; i < embeds.length; i++) {
+				const embed = embeds[i];
+				const src = embed.getAttribute("src");
+				if (!src) continue;
+				if (!src.endsWith(".mhtml") && !src.endsWith(".mht")) continue;
+
+				const file = this.app.metadataCache.getFirstLinkpathDest(
+					src,
+					ctx.sourcePath
+				);
+				if (!file || !(file instanceof TFile)) continue;
+
+				ctx.addChild(
+					new MhtmlEmbedRenderer(
+						embed as HTMLElement,
+						file,
+						this.app,
+						this.settings.iframeSandbox
+					)
+				);
+			}
+		});
 
 		// Register settings tab
 		this.addSettingTab(new MhtmlPreviewSettingTab(this.app, this));
@@ -51,10 +78,8 @@ export default class MhtmlPreviewPlugin extends Plugin {
 		const leaves = this.app.workspace.getLeavesOfType(MHTML_VIEW_TYPE);
 
 		if (leaves.length > 0) {
-			// Reveal existing view
 			this.app.workspace.revealLeaf(leaves[0]);
 		} else {
-			// Create a new view in the current leaf or a new leaf
 			const leaf = this.app.workspace.getLeaf(false);
 			await leaf.setViewState({ type: MHTML_VIEW_TYPE, active: true });
 			this.app.workspace.revealLeaf(leaf);
@@ -72,7 +97,6 @@ export default class MhtmlPreviewPlugin extends Plugin {
 
 /**
  * Settings tab for the MHTML Preview plugin.
- * Provides controls for iframe sandbox configuration.
  */
 class MhtmlPreviewSettingTab extends PluginSettingTab {
 	plugin: MhtmlPreviewPlugin;
