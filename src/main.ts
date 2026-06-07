@@ -1,4 +1,4 @@
-import { Plugin, PluginSettingTab, Setting, App, TFile } from "obsidian";
+import { Plugin, PluginSettingTab, Setting, App, TFile, MarkdownView } from "obsidian";
 import { MhtmlFileView, MHTML_VIEW_TYPE } from "./view";
 import { MhtmlEmbedRenderer } from "./embed-renderer";
 import { startEmbedObserver } from "./live-preview";
@@ -42,6 +42,37 @@ export default class MhtmlPreviewPlugin extends Plugin {
 		this.embedObserver = startEmbedObserver(
 			this.app, this.settings.iframeSandbox
 		);
+
+		// Convert [text](path.mhtml) or [[file.mhtml]] to embed with !
+		this.addCommand({
+			id: "convert-to-mhtml-embed",
+			name: "Convert MHTML link to embed",
+			editorCallback: (editor) => {
+				const cursor = editor.getCursor();
+				const line = editor.getLine(cursor.line);
+
+				// Try markdown link: [text](path.mhtml) → ![text](path.mhtml)
+				const mdRe = /\[([^\]]*)\]\(([^)]+\.(?:mhtml|mht))\)/gi;
+				let m: RegExpExecArray | null;
+				while ((m = mdRe.exec(line)) !== null) {
+					const idx = m.index;
+					if (idx > 0 && line[idx - 1] === "!") continue;
+					editor.setCursor({ line: cursor.line, ch: idx });
+					editor.replaceSelection("!");
+					return;
+				}
+
+				// Try wikilink: [[file.mhtml]] → ![[file.mhtml]]
+				const wlRe = /\[\[([^\]]+\.(?:mhtml|mht))\]\]/gi;
+				while ((m = wlRe.exec(line)) !== null) {
+					const idx = m.index;
+					if (idx > 0 && line[idx - 1] === "!") continue;
+					editor.setCursor({ line: cursor.line, ch: idx });
+					editor.replaceSelection("!");
+					return;
+				}
+			},
+		});
 
 		this.addCommand({
 			id: "open-mhtml-preview",
