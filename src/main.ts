@@ -43,6 +43,23 @@ export default class MhtmlPreviewPlugin extends Plugin {
 			this.app, this.settings.iframeSandbox
 		);
 
+		// Auto-embed: detect [text](path.mhtml) insertion and add ! prefix
+		this.registerEvent(
+			this.app.workspace.on("editor-change", () => {
+				setTimeout(() => {
+					const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+					if (!view?.editor) return;
+					const editor = view.editor;
+					const doc = editor.getValue();
+					const re = /(?<!!)\[([^\]]*)\]\(([^)]+\.(?:mhtml|mht))\)/gi;
+					const m = re.exec(doc);
+					if (!m) return;
+					editor.setCursor(editor.offsetToPos(m.index));
+					editor.replaceSelection("!");
+				}, 50);
+			})
+		);
+
 		// Convert [text](path.mhtml) or [[file.mhtml]] to embed with !
 		this.addCommand({
 			id: "convert-to-mhtml-embed",
