@@ -15,7 +15,7 @@ export default class MhtmlPreviewPlugin extends Plugin {
 		this.registerView(MHTML_VIEW_TYPE, (leaf) => new MhtmlFileView(leaf));
 		this.registerExtensions(["mhtml", "mht"], MHTML_VIEW_TYPE);
 
-		// Reading view inline embed (registerMarkdownPostProcessor)
+		// Reading view inline embed
 		this.registerMarkdownPostProcessor((el, ctx) => {
 			const embeds = el.querySelectorAll(".internal-embed");
 			for (let i = 0; i < embeds.length; i++) {
@@ -38,13 +38,10 @@ export default class MhtmlPreviewPlugin extends Plugin {
 			}
 		});
 
-		// DOM-level embed observer (catches Live Preview and any other contexts)
+		// Live Preview embed (MutationObserver)
 		this.embedObserver = startEmbedObserver(
-			this.app,
-			this.settings.iframeSandbox
+			this.app, this.settings.iframeSandbox
 		);
-
-		this.addSettingTab(new MhtmlPreviewSettingTab(this.app, this));
 
 		this.addCommand({
 			id: "open-mhtml-preview",
@@ -52,7 +49,9 @@ export default class MhtmlPreviewPlugin extends Plugin {
 			callback: () => this.activateView(),
 		});
 
-		console.log("MHTML Preview plugin v1.0.0 loaded");
+		this.addSettingTab(new MhtmlPreviewSettingTab(this.app, this));
+
+		console.log("MHTML Preview plugin v1.1.0 loaded");
 	}
 
 	onunload(): void {
