@@ -1,7 +1,7 @@
 {
   "id": "mhtml-preview",
   "name": "MHTML Preview",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "minAppVersion": "1.0.0",
   "description": "Preview .mhtml (MIME HTML) files directly in Obsidian with full resource inlining.",
   "author": "MHTML Preview Plugin",
