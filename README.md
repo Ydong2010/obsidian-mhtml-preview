@@ -5,10 +5,11 @@ Preview `.mhtml` (MIME HTML) files directly in Obsidian with full fidelity — i
 ## Features
 
 - **Full visual fidelity** — CSS stylesheets are inlined as `<style>` tags, images and fonts as data URIs
+- **Inline embed preview** — `![file](path.mhtml)` shows a live preview inside notes, in both Reading and Live Preview mode
+- **Drag & drop** — drag an `.mhtml` file into a note, auto-embeds as inline preview
 - **Sandboxed rendering** — content is displayed in a sandboxed iframe for security isolation
-- **Auto-refresh** — preview updates automatically when the MHTML file is modified externally
 - **Zero dependencies** — custom RFC 2557 MHTML parser, no runtime npm packages needed
-- **Cross-platform** — works on Windows, macOS, and Linux (`isDesktopOnly: false`)
+- **Cross-platform** — works on Windows, macOS, and Linux
 
 ## Installation
 
@@ -65,11 +66,13 @@ Move or copy the saved `.mhtml` file into any folder inside your Obsidian vault.
 
 You have three ways to preview an MHTML file:
 
-**Method 1** — In Obsidian's left sidebar, simply **click the `.mhtml` file** in the file explorer. It will open in a full tab.
+**Method 1 (click)** — In Obsidian's left sidebar, click the `.mhtml` file in the file explorer. Opens in a full tab.
 
-**Method 2** — **Drag the `.mhtml` file into a note** to create a link, then click that link to open it in a full tab.
+**Method 2 (drag & drop)** — **Drag the `.mhtml` file into a note**. An inline preview embed will appear automatically in both Reading view and Live Preview.
 
-**Method 3** — Use the embed syntax `![[file.mhtml]]` in a note. This shows an **inline preview** directly inside the note — works in both **Reading view** and **Live Preview** (editing mode).
+**Method 3 (manual embed)** — Write the embed syntax: `![filename](path.mhtml)`. This shows an inline preview directly inside the note.
+
+> **Tip**: If you drag a file and it shows as a plain link, use `Ctrl+P` → "Convert MHTML link to embed" to turn it into an inline preview.
 
 ![Preview screenshot](screenshot-preview.png)
 
